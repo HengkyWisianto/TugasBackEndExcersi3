@@ -1,6 +1,6 @@
 const { errorResponder, errorTypes } = require('../../../core/errors');
 const { User } = require('../../../models');
-const { hashPassword } = require('../../../utils/password');
+
  
 /**
  * Get a list of users
@@ -90,7 +90,7 @@ async function UbahPW(id, hashedPassword) {
     const user = await User.findByIdAndUpdate(
       id,
       { password: hashedPassword },
-      { new: true }
+
     );
   
     if (!user) {
