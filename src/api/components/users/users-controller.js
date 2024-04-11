@@ -1,8 +1,6 @@
 const usersService = require('./users-service');
 const { errorResponder, errorTypes } = require('../../../core/errors');
-const { hashPassword } = require('../../../utils/password');
-const bcrypt = require('bcrypt');
-
+const authenticationServices = require('../authentication/authentication-service');
  
 /**
  * Handle get list of users request
@@ -129,6 +127,7 @@ async function deleteUser(request, response, next) {
 async function NewPW(request, response, next) {
   try {
     const id = request.params.id;
+    const email = request.body.email;
     const password = request.body.password;
     const password_confirm = request.body.password_confirm;
     const changePassword = request.body.changePassword;
@@ -142,12 +141,18 @@ async function NewPW(request, response, next) {
       );
     }
 
+
     // Verify if old password matches the current password
     const user = await usersService.getUser(id);
     if (!user) {
       throw errorResponder(errorTypes.UNAUTHORIZED, 'User not found');
     }
-
+    if(user.email !== email) {
+      throw errorResponder(
+        errorTypes.EMAIL_ENTERED,
+        'Email salah'
+      )
+    }
     // Verify if old password matches the current password
     if (password_confirm !== password) {
       throw errorResponder(
@@ -156,6 +161,17 @@ async function NewPW(request, response, next) {
       );
     }
 
+    const loginSuccess = await authenticationServices.checkLoginCredentials(
+      email, 
+      password
+    );
+
+    if(!loginSuccess) {
+      throw errorResponder(
+        errorTypes.INVALID_CREDENTIALS,
+        'Salah Email / PW'
+      )
+    }
     // Update password
     const success = await usersService.NewPW(
       id,
