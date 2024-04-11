@@ -18,6 +18,7 @@ module.exports = {
   },
   NewPW:{
     body:{
+      email: joi.string().email().required().label('Email'),
       password: joi.string().min(6).max(32).required().label('Password'),
       password_confirm: joi.string().min(6).max(32).required().label('Confirm Password'),
       changePassword: joi.string().min(6).max(32).required().label('New Password'),
